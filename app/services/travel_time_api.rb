@@ -53,7 +53,29 @@ class TravelTimeApi
   end
 
   def self.isochrone(origin, travel_time: 30.minutes, transport_mode: :public_transport)
-    # ...
+    query = {
+      arrival_searches: [
+        {
+          id: "arrival-search", # doesn't matter what we call this
+          arrival_time: (Time.now.beginning_of_day + 8.hours).to_formatted_s(:iso8601), # Check arrivals at 8am (maybe change?),
+          coords: { lat: origin.first, lng: origin.second },
+          transportation: { type: transport_mode },
+          travel_time: travel_time,
+        },
+      ],
+    }
+    response = HTTParty.post(
+      ISOCHRONE_API_URL,
+      body: query.to_json,
+      headers: {
+        "Content-Type" => "application/json",
+        "Accept" => "application/vnd.wkt+json",
+        "X-Application-Id" => ENV.fetch("TRAVELTIME_APPLICATION_ID"),
+        "X-Api-Key" => ENV.fetch("TRAVELTIME_API_KEY"),
+      },
+    )
+
+    response["results"].first["shape"]
   end
 
   # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
