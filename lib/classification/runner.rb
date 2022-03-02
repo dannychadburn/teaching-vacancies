@@ -16,10 +16,10 @@ class Runner
       predicted_value = prediction.call(example)
 
       if actual_value == predicted_value
-        puts "✅ #{id} (#{predicted_value})"
+        puts "✅ #{id} (#{actual_value})"
       else
-        puts "🛑 #{id} (#{predicted_value})"
-        puts "  -> expected #{actual_value}"
+        puts "🛑 #{id}"
+        puts "  -> actual is '#{actual_value}', but predicted '#{predicted_value}'"
 
         if fix
           begin

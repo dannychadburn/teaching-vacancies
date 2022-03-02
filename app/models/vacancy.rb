@@ -14,7 +14,7 @@ class Vacancy < ApplicationRecord
   # vacancies *may* have more than one main job role as we used to allow multiple.
   # TODO: This is a compromise to keep changes to the data model minimal for now. Once the legacy vacancies are gone,
   #       we should refactor the data model.
-  MAIN_JOB_ROLES = { teacher: 0, leadership: 1, teaching_assistant: 6, education_support: 4, sendco: 5 }.freeze
+  MAIN_JOB_ROLES = { teacher: 0, leadership: 1, teaching_assistant: 6, education_support: 4, sendco: 5, other: 999 }.freeze
   ADDITIONAL_JOB_ROLES = { send_responsible: 2, ect_suitable: 3 }.freeze
 
   # When removing a job_role or working_pattern, remember to update *subscriptions* that have the old values.
