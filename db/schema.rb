@@ -492,6 +492,4 @@ ActiveRecord::Schema.define(version: 2022_02_17_113218) do
   add_foreign_key "notes", "publishers"
   add_foreign_key "publisher_preferences", "publishers"
   add_foreign_key "qualification_results", "qualifications"
-  add_foreign_key "vacancies", "organisations", column: "publisher_organisation_id"
-  add_foreign_key "vacancies", "publishers"
 end

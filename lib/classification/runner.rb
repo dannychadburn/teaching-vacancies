@@ -47,8 +47,9 @@ class Runner
       end
     end
 
-    accuracy = (true_positives.values.sum.to_f / examples.count).ceil(4)
-    puts "\nAccuracy: #{accuracy} over #{examples.count} examples"
+    correct_predictions = true_positives.values.sum
+    accuracy = (correct_predictions.to_f / examples.count).ceil(4)
+    puts "\nAccuracy: #{accuracy} (#{correct_predictions}/#{examples.count})"
 
     precisions = labels
       .select { |l| (true_positives[l] + false_positives[l]).positive? }
