@@ -32,7 +32,7 @@ namespace :classify do # rubocop:disable Metrics
       labels: %w[ect_suitable not_ect_suitable],
       actual: ->(e) { e.job_roles.include?("ect_suitable") ? "ect_suitable" : "not_ect_suitable" },
       prediction: ->(e) { EctSuitableClassifier.new(e).smarter },
-      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n    Salary: '#{e.salary}'" },
     ).call
   end
 end
