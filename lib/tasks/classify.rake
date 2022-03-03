@@ -2,6 +2,7 @@ require_relative "../classification/runner"
 require_relative "../classification/ect_suitable_classifier"
 require_relative "../classification/main_job_role_classifier"
 require_relative "../classification/send_responsibilities_classifier"
+require_relative "../classification/working_patterns_classifier"
 
 namespace :classify do # rubocop:disable Metrics
   task main_job_role: :environment do
@@ -49,6 +50,22 @@ namespace :classify do # rubocop:disable Metrics
       labels: %w[send_responsibilities no_send_responsibilities],
       actual: ->(e) { e.job_roles.include?("send_responsible") || e.job_roles.include?("sendco") ? "send_responsibilities" : "no_send_responsibilities" },
       prediction: ->(e) { SendResponsibilitiesClassifier.new(e).naive },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
+    ).call
+  end
+
+  task working_pattern_full_time: :environment do
+    vacancies = Vacancy
+                  .published
+                  .where(publish_on: (1.year.ago..))
+                  .includes(:organisations)
+                  .find_each
+
+    Runner.new(
+      vacancies,
+      labels: %w[full_time not_full_time],
+      actual: ->(e) { e.working_patterns.include?("full_time") ? "full_time" : "not_full_time" },
+      prediction: ->(e) { WorkingPatternsClassifier.new(e).full_time },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
   end
