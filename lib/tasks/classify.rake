@@ -66,7 +66,7 @@ namespace :classify do # rubocop:disable Metrics
       labels: %w[full_time not_full_time],
       actual: ->(e) { e.working_patterns.include?("full_time") ? "full_time" : "not_full_time" },
       prediction: ->(e) { WorkingPatternsClassifier.new(e).full_time },
-      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n   Salary: #{e.salary}" },
     ).call
   end
 end
