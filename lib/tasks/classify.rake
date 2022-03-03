@@ -47,7 +47,7 @@ namespace :classify do # rubocop:disable Metrics
     Runner.new(
       vacancies,
       labels: %w[send_responsibilities no_send_responsibilities],
-      actual: ->(e) { e.job_roles.include?("ect_suitable") || e.job_roles.include?("sendco") ? "send_responsibilities" : "no_send_responsibilities" },
+      actual: ->(e) { e.job_roles.include?("send_responsible") || e.job_roles.include?("sendco") ? "send_responsibilities" : "no_send_responsibilities" },
       prediction: ->(e) { SendResponsibilitiesClassifier.new(e).naive },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
