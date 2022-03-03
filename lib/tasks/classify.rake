@@ -80,8 +80,8 @@ namespace :classify do # rubocop:disable Metrics
 
     Runner.new(
       vacancies,
-      labels: %w[permanent fixed_term parental_leave_cover],
-      actual: ->(e) { e.contract_type },
+      labels: %w[permanent not_permanent],
+      actual: ->(e) { e.contract_type == "permanent" ? "permanent" : "not_permanent" },
       prediction: ->(e) { ContractTypeClassifier.new(e).contract_type },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n#{e.job_advert[0..500]}\n\n" },
     ).call
