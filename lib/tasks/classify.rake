@@ -101,7 +101,7 @@ namespace :classify do # rubocop:disable Metrics
       labels: %w[early_years not_early_years],
       actual: ->(e) { e.key_stages.include?("early_years") ? "early_years" : "not_early_years" },
       prediction: ->(e) { KeyStageClassifier.new(e).early_years },
-      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n  -> Phase: #{e.phase}" },
     ).call
   end
 end
