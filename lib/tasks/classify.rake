@@ -1,6 +1,7 @@
 require_relative "../classification/runner"
 require_relative "../classification/ect_suitable_classifier"
 require_relative "../classification/main_job_role_classifier"
+require_relative "../classification/send_responsibilities_classifier"
 
 namespace :classify do # rubocop:disable Metrics
   task main_job_role: :environment do
@@ -33,6 +34,21 @@ namespace :classify do # rubocop:disable Metrics
       actual: ->(e) { e.job_roles.include?("ect_suitable") ? "ect_suitable" : "not_ect_suitable" },
       prediction: ->(e) { EctSuitableClassifier.new(e).smarter },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n    Salary: '#{e.salary}'" },
+    ).call
+  end
+
+  task send_responsibilities: :environment do
+    vacancies = Vacancy
+                  .published
+                  .where(publish_on: (1.year.ago..))
+                  .find_each
+
+    Runner.new(
+      vacancies,
+      labels: %w[send_responsibilities no_send_reponsibilities],
+      actual: ->(e) { e.job_roles.include?("ect_suitable") || e.job_roles.include?("sendco") ? "send_responsibilities" : "no_send_responsibilities" },
+      prediction: ->(e) { SendReponsibilitiesClassifier.new(e).naive },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
   end
 end
