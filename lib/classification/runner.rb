@@ -22,7 +22,7 @@ class Runner
       predicted_value = prediction.call(example)
 
       if actual_value == predicted_value
-        puts "✅ #{id} (#{actual_value})"
+        # puts "✅ #{id} (#{actual_value})"
 
         true_positives[actual_value] += 1
         (labels - [actual_value]).each { |l| true_negatives[l] += 1 }
