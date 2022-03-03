@@ -1,6 +1,7 @@
 require_relative "../classification/runner"
 require_relative "../classification/contract_type_classifier"
 require_relative "../classification/ect_suitable_classifier"
+require_relative "../classification/key_stage_classifier"
 require_relative "../classification/main_job_role_classifier"
 require_relative "../classification/send_responsibilities_classifier"
 require_relative "../classification/working_patterns_classifier"
@@ -84,6 +85,23 @@ namespace :classify do # rubocop:disable Metrics
       actual: ->(e) { e.contract_type == "permanent" ? "permanent" : "not_permanent" },
       prediction: ->(e) { ContractTypeClassifier.new(e).contract_type },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n#{e.job_advert[0..500]}\n\n" },
+    ).call
+  end
+
+  task ks_early_years: :environment do
+    vacancies = Vacancy
+                  .published
+                  .where(publish_on: (5.months.ago..))
+                  .with_any_of_key_stages(%w[early_years ks1 ks2])
+                  .includes(:organisations)
+                  .find_each
+
+    Runner.new(
+      vacancies,
+      labels: %w[early_years not_early_years],
+      actual: ->(e) { e.key_stages.include?("early_years") ? "early_years" : "not_early_years" },
+      prediction: ->(e) { KeyStageClassifier.new(e).early_years },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
   end
 end
