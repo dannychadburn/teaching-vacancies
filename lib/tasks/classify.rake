@@ -1,4 +1,5 @@
 require_relative "../classification/runner"
+require_relative "../classification/contract_type_classifier"
 require_relative "../classification/ect_suitable_classifier"
 require_relative "../classification/main_job_role_classifier"
 require_relative "../classification/send_responsibilities_classifier"
@@ -67,6 +68,22 @@ namespace :classify do # rubocop:disable Metrics
       actual: ->(e) { e.working_patterns.include?("full_time") ? "full_time" : "not_full_time" },
       prediction: ->(e) { WorkingPatternsClassifier.new(e).full_time },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n   Salary: #{e.salary}" },
+    ).call
+  end
+
+  task contract_type: :environment do
+    vacancies = Vacancy
+                  .published
+                  .where(publish_on: (5.months.ago..))
+                  .includes(:organisations)
+                  .find_each
+
+    Runner.new(
+      vacancies,
+      labels: %w[permanent fixed_term parental_leave_cover],
+      actual: ->(e) { e.contract_type },
+      prediction: ->(e) { ContractTypeClassifier.new(e).contract_type },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
   end
 end
