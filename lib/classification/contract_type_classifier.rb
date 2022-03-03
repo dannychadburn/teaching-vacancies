@@ -6,10 +6,12 @@ class ContractTypeClassifier
   end
 
   def contract_type
-    if vacancy.job_title.match?(/maternity|paternity|parental/i)
-      "parental_leave_cover"
-    elsif vacancy.job_title.match?(/(fixed term)|month|contract|(^|[^A-Za-z])temp/i)
+    if vacancy.job_title.match?(/(fixed[ -]?term)|month|contract|f\.?t\.?c|(^|[^A-Za-z])temp/i) ||
+       vacancy.job_advert.match?(/fixed[ -]?term|temporary (for|basis|until)|up to \d\d? (months|years?)|until the/i)
       "fixed_term"
+    elsif vacancy.job_title.match?(/maternity|paternity|parental/i) ||
+          vacancy.job_advert.match?(/(maternity|paternity|parental|to) cover/)
+      "parental_leave_cover"
     else
       "permanent"
     end

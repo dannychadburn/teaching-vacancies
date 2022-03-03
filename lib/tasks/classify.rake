@@ -83,7 +83,7 @@ namespace :classify do # rubocop:disable Metrics
       labels: %w[permanent fixed_term parental_leave_cover],
       actual: ->(e) { e.contract_type },
       prediction: ->(e) { ContractTypeClassifier.new(e).contract_type },
-      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
+      identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n#{e.job_advert[0..500]}\n\n" },
     ).call
   end
 end
