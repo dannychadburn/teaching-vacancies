@@ -15,7 +15,7 @@ class EctSuitableClassifier
 
   # rubocop:disable Lint/DuplicateBranch
   def smarter
-    if vacancy.job_title.match?(/lead|head|second|cover/i)
+    if vacancy.job_title.match?(/head|second|cover|experienced|deputy|director|principal|avp|ceo|coo|chief|(head of)|lead|(second in)|2ic|2nd|(second for)|3rd|3ic|(third in)|(third for)/i)
       "not_ect_suitable"
     elsif !vacancy.job_roles.include?("teacher")
       "not_ect_suitable"
