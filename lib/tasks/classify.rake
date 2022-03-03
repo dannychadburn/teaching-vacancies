@@ -41,13 +41,14 @@ namespace :classify do # rubocop:disable Metrics
     vacancies = Vacancy
                   .published
                   .where(publish_on: (1.year.ago..))
+                  .includes(:organisations)
                   .find_each
 
     Runner.new(
       vacancies,
-      labels: %w[send_responsibilities no_send_reponsibilities],
+      labels: %w[send_responsibilities no_send_responsibilities],
       actual: ->(e) { e.job_roles.include?("ect_suitable") || e.job_roles.include?("sendco") ? "send_responsibilities" : "no_send_responsibilities" },
-      prediction: ->(e) { SendReponsibilitiesClassifier.new(e).naive },
+      prediction: ->(e) { SendResponsibilitiesClassifier.new(e).naive },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})" },
     ).call
   end

@@ -74,5 +74,10 @@ class Runner
     specificities.each do |label, specificity|
       puts "  #{label}: #{specificity.ceil(4)}"
     end
+
+    # puts true_positives.inspect
+    # puts false_positives.inspect
+    # puts true_negatives.inspect
+    # puts false_negatives.inspect
   end
 end
