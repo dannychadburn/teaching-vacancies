@@ -62,7 +62,7 @@ ruby:
       - filter_types.each do |filter_type|
         - rb.group(**filter_type)
     - filters_component.group key: "job_roles", component: f.govuk_collection_check_boxes(:job_roles, @form.job_role_options, :first, :last, small: true, legend: { text: t("jobs.filters.job_roles") }, hint: nil, form_group: { data: { action: "change->form#submitListener" } })
-    - if current_variant?(:"2022_01_subjects_filters_test", :subjects_filters)
+    - if current_variant?(:"2022_01_subjects_filters_test", :subjects_filters) || @form.subjects.any?
       - filters_component.group key: "subjects", title: t("jobs.filters.subject"), component: searchable_collection(collection: f.govuk_collection_check_boxes(:subjects,
           SUBJECT_OPTIONS,
           :first,
