@@ -4,6 +4,7 @@ require_relative "../classification/ect_suitable_classifier"
 require_relative "../classification/key_stage_classifier"
 require_relative "../classification/main_job_role_classifier"
 require_relative "../classification/send_responsibilities_classifier"
+require_relative "../classification/subject_classifier"
 require_relative "../classification/working_patterns_classifier"
 
 namespace :classify do # rubocop:disable Metrics
@@ -100,6 +101,23 @@ namespace :classify do # rubocop:disable Metrics
       actual: ->(e) { e.key_stages.include?("early_years") ? "early_years" : "not_early_years" },
       prediction: ->(e) { KeyStageClassifier.new(e).early_years },
       identifier: ->(e) { "#{e.job_title} (main role: #{e.main_job_role})\n  -> Phase: #{e.phase}" },
+    ).call
+  end
+
+  task subject: :environment do
+    vacancies = Vacancy
+                  .published
+                  .where(publish_on: (1.year.ago..))
+                  .where("cardinality(subjects) = 1") # Disregard zero or multi-subject vacancies
+                  .with_any_of_job_roles("teacher")
+                  .find_each
+
+    Runner.new(
+      vacancies,
+      labels: SUBJECT_OPTIONS.map(&:first) + ["Unknown"],
+      actual: ->(e) { e.subjects.first },
+      prediction: ->(e) { SubjectClassifier.new(e.job_title).subject },
+      identifier: ->(e) { e.job_title },
     ).call
   end
 end
