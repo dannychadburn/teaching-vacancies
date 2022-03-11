@@ -1,13 +1,12 @@
 class Runner
   attr_reader :examples, :labels, :actual, :prediction, :identifier, :fix
 
-  def initialize(examples, labels:, actual:, prediction:, identifier:, fix: nil)
+  def initialize(examples, labels:, actual:, prediction:, identifier:)
     @examples = examples
     @labels = labels
     @actual = actual
     @prediction = prediction
     @identifier = identifier
-    @fix = fix
   end
 
   def call # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/PerceivedComplexity
@@ -33,17 +32,6 @@ class Runner
         false_positives[predicted_value] += 1
         false_negatives[actual_value] += 1
         (labels - [actual_value, predicted_value]).each { |l| true_negatives[l] += 1 }
-
-        if fix
-          begin
-            print "Enter new value (Ctrl-D to ignore): "
-            new_value = gets&.chomp
-            puts
-            fix.call(example, new_value) if new_value
-          rescue StandardError => e
-            puts "Couldn't update value (#{e})"
-          end
-        end
       end
     end
 

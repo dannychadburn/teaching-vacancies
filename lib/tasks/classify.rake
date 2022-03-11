@@ -20,8 +20,6 @@ namespace :classify do # rubocop:disable Metrics
       actual: ->(e) { e.main_job_role },
       prediction: ->(e) { MainJobRoleClassifier.new(e.job_title).main_job_role_basic },
       identifier: ->(e) { e.job_title },
-      # Need to make sure not to reset additional job roles
-      # fix: ->(e, new_value) { e.update(job_roles: (e.job_roles - [e.main_job_role]) + [new_value]) },
     ).call
   end
 
