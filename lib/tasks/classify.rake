@@ -107,15 +107,18 @@ namespace :classify do # rubocop:disable Metrics
   task subject: :environment do
     vacancies = Vacancy
                   .published
-                  .where(publish_on: (1.year.ago..))
-                  .where("cardinality(subjects) = 1") # Disregard zero or multi-subject vacancies
+                  .where(publish_on: (6.months.ago..))
+                  # Disregard zero or multi-subject vacancies
+                  .where("cardinality(subjects) = 1")
+                  # Disregard non-secondary vacancies where subjects make less sense
+                  .where("readable_phases && ARRAY[?]::varchar[]", "secondary")
                   .with_any_of_job_roles("teacher")
                   .find_each
 
     Runner.new(
       vacancies,
       labels: SUBJECT_OPTIONS.map(&:first) + ["Unknown"],
-      actual: ->(e) { e.subjects.first },
+      actual: ->(e) { e.subjects.first == "ICT" ? "Computing" : e.subjects.first },
       prediction: ->(e) { SubjectClassifier.new(e.job_title).subject },
       identifier: ->(e) { e.job_title },
     ).call
