@@ -1,10 +1,6 @@
 class SearchableCollectionComponent < GovukComponent::Base
   attr_accessor :collection, :collection_count, :threshold, :border, :label_text, :options, :scrollable
 
-  def self.variants
-    %w[default]
-  end
-
   def initialize(collection:, collection_count:, options: {}, label_text: nil, classes: [], html_attributes: {})
     super(classes: classes, html_attributes: html_attributes.merge({ data: { controller: "searchable-collection" } }))
 

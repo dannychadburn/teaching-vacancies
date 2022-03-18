@@ -1,19 +1,9 @@
-class SearchableCollectionComponentPreview < ViewComponent::Preview
-  layout "application"
-
-  OPTIONS = [["Accounting", "includes Finance and accounting"]]
-
-  def self.component_name
-    component_class.to_s.underscore.humanize.split.first.downcase
+class SearchableCollectionComponentPreview < Base
+  def self.options
+    Array(0..10).map { |i| ["Label #{i + 1}", "Hint #{i + 1}"] }
   end
 
   def self.component_class
     SearchableCollectionComponent
   end
-
-  def self.form
-    SearchableCollectionComponentPreview::Form
-  end
-
-  def preview; end
 end
