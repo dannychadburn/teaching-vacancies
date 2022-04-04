@@ -9,6 +9,7 @@
   .govuk-grid-row
     .govuk-grid-column-one-third-at-desktop class="govuk-!-margin-bottom-3"
       = render "vacancies/search/filters", f: f, form: @form
+      = render "vacancies/search/previous_keyword_field", f: f, search: @vacancies_search
 
     .govuk-grid-column-two-thirds-at-desktop
       = render "vacancies/search/fields_and_button", f: f, form: @form

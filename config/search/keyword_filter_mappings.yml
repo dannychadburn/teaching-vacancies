@@ -1,0 +1,16 @@
+# Map keyword "trigger" terms to search filters
+primary:
+  phases:
+    - primary
+secondary:
+  phases:
+    - secondary
+16-19:
+  phases:
+    - 16-19
+biology:
+  phases:
+    - secondary
+    - 16-19
+  subjects:
+    - Biology
