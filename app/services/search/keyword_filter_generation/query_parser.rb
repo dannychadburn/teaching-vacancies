@@ -15,6 +15,12 @@ class Search::KeywordFilterGeneration::QueryParser < Parslet::Parser
     match('\S').repeat(1) >> term_terminator
   end
 
+  # Convenience method to parse and transform in one step
+  def self.filters_from_query(query)
+    parsed_query = new.parse(query)
+    Search::KeywordFilterGeneration::QueryTransformer.apply(parsed_query)
+  end
+
   def filterable_term_tokens
     Rails.application.config.x.search.keyword_filter_mapping_triggers
       .map { |s| str(s) }

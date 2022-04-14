@@ -37,6 +37,9 @@ class VacanciesController < ApplicationController
                   job_role: [], job_roles: [], subjects: [], phases: [], working_patterns: [])
   end
 
+  # Determines additional filters to apply if the user's keyword(s) match certain phrases
+  # (to improve quality of results)
+  # TODO: Consider refactoring this into `SearchForm`
   def filters_from_keywords
     # Do not apply filters on landing pages, even if they have a keyword set (as landing pages
     # should always be 100% manually configured)
@@ -46,8 +49,7 @@ class VacanciesController < ApplicationController
     # decision
     return {} if params[:previous_keyword] == params[:keyword]
 
-    parsed_query = Search::KeywordFilterGeneration::QueryParser.new.parse(params[:keyword])
-    Search::KeywordFilterGeneration::QueryTransformer.apply(parsed_query)
+    Search::KeywordFilterGeneration::QueryParser.filters_from_query(params[:keyword])
   end
 
   def set_landing_page
