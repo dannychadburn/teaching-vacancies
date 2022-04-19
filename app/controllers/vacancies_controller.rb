@@ -30,11 +30,11 @@ class VacanciesController < ApplicationController
     return @landing_page.criteria if @landing_page
 
     strip_empty_checkboxes(%i[job_roles subjects phases working_patterns])
-    %w[job_role job_roles subjects phases working_patterns].each do |facet|
+    %w[job_roles subjects phases working_patterns].each do |facet|
       params[facet] = params[facet].split if params[facet].is_a?(String)
     end
-    params.permit(:keyword, :location, :radius, :subject, :sort_by,
-                  job_role: [], job_roles: [], subjects: [], phases: [], working_patterns: [])
+    params.permit(:keyword, :location, :radius, :sort_by,
+                  job_roles: [], subjects: [], phases: [], working_patterns: [])
   end
 
   def set_landing_page

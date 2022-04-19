@@ -12,7 +12,7 @@ class Jobseekers::SearchForm
     strip_trailing_whitespaces_from_params(params)
     @keyword = params[:keyword] || params[:subject]
     @location = params[:location]
-    @job_roles = params[:job_roles] || params[:job_role] || []
+    @job_roles = params[:job_roles] || []
     @subjects = params[:subjects]
     @phases = params[:phases]
     @working_patterns = params[:working_patterns]
