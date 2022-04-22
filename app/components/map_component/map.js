@@ -1,4 +1,5 @@
 import 'leaflet';
+import 'leaflet.markercluster/dist/leaflet.markercluster';
 
 import { Controller } from '@hotwired/stimulus';
 
@@ -8,11 +9,12 @@ const MapController = class extends Controller {
   static targets = ['markersTextList', 'marker'];
 
   connect() {
-    if (!this.element.querySelector('#map')) {
-      return;
-    }
+    const singleMarker = this.markerTargets.length <= 1;
+    const polygonData = this.element.dataset.polygon ? JSON.parse(this.element.dataset.polygon) : [];
 
-    const singleMarker = this.markerTargets.length === 1;
+    if (!singleMarker) {
+      this.createCluster();
+    }
 
     this.markerTargets.forEach((marker, index) => {
       const point = {
@@ -22,13 +24,28 @@ const MapController = class extends Controller {
 
       if (index === 0) {
         this.create(point, this.element.dataset.zoom);
+
+        polygonData.forEach((polygon) => {
+          const polygonLayer = MapController.createPolygon({ coordinates: polygon });
+          this.addMapLayer(polygonLayer);
+        });
       }
 
-      this.addMarker(point, marker, index, singleMarker);
+      const leafletMarker = MapController.createMarker(point, marker, index, singleMarker);
+
+      if (!singleMarker) {
+        this.addMarkerToCluster(leafletMarker);
+      } else if (leafletMarker) {
+        leafletMarker.addTo(this.map);
+        leafletMarker.openPopup();
+      }
     });
 
     if (!singleMarker) {
-      this.markersTextListTarget.classList.add('govuk-list--number');
+      this.addMapLayer(this.clusterGroup);
+    }
+
+    if (this.markerTargets.length > 1) {
       this.setMapBounds();
     }
   }
@@ -42,32 +59,46 @@ const MapController = class extends Controller {
     ).addTo(this.map);
   }
 
-  addMarker(point, marker, index, singleMarker) {
-    const originalLink = marker.querySelector('a');
+  createCluster() {
+    this.clusterGroup = L.markerClusterGroup({
+      iconCreateFunction: (cluster) => {
+        const properties = MapController.clusterIconProperties(cluster.getChildCount(), [5, 20]);
 
-    const leafletMarker = L.marker(point, {
-      icon: MapController.markerIcon(singleMarker ? '' : `<span aria-label="${originalLink.innerText}">${index + 1}</span>`),
-      riseOnHover: true,
+        return L.divIcon({
+          className: `map-component__map__cluster map-component__map__cluster--${properties.style}`,
+          iconSize: [properties.size, properties.size],
+          html: `<span>${properties.text}<span class="govuk-visually-hidden">vacancies</span></span>`,
+        });
+      },
+      maxClusterRadius: 32,
+    });
+  }
+
+  static clusterIconProperties(numberMarkers, thresholds = []) {
+    const properties = {
+      text: numberMarkers,
+      size: 30,
+      style: 'default',
+    };
+
+    const styles = ['medium', 'large'];
+
+    thresholds.forEach((threshold, i) => {
+      if (numberMarkers >= threshold) {
+        properties.text = `${threshold}+`;
+        properties.style = styles[i];
+      }
     });
 
-    const addressBlock = marker.querySelector('.pop-up');
-    addressBlock.parentNode.removeChild(addressBlock);
-    addressBlock.hidden = false;
+    return properties;
+  }
 
-    leafletMarker.addTo(this.map).bindPopup(
-      addressBlock.outerHTML,
-      { className: 'map-component__map__popup' },
-    );
+  addMapLayer(layer) {
+    this.map.addLayer(layer);
+  }
 
-    // use keydown event as leaflet doesnt recognise focus
-    leafletMarker.on('keydown', MapController.openMarkerPopup);
-
-    if (singleMarker) {
-      originalLink.remove();
-      leafletMarker.openPopup();
-    } else {
-      originalLink.replaceWith(originalLink.innerText);
-    }
+  addMarkerToCluster(marker) {
+    this.clusterGroup.addLayer(marker);
   }
 
   setMapBounds() {
@@ -76,16 +107,42 @@ const MapController = class extends Controller {
     );
   }
 
-  static markerIcon(html) {
+  static createPolygon({ coordinates }) {
+    return L.polygon(coordinates.map((point) => point.reverse()), { color: '#0b0c0c', weight: 1, smoothFactor: 2 });
+  }
+
+  static createMarker(point, marker) {
+    const popupHTML = marker.querySelector('.pop-up');
+    popupHTML.parentNode.removeChild(popupHTML);
+    popupHTML.hidden = false;
+
+    const markerTitle = popupHTML.querySelector('.marker-title').textContent;
+
+    const leafletMarker = L.marker(point, {
+      icon: MapController.markerIcon(markerTitle),
+      riseOnHover: true,
+    });
+
+    leafletMarker.bindPopup(
+      popupHTML.outerHTML,
+      { className: 'map-component__map__popup' },
+    );
+
+    leafletMarker.on('keydown', MapController.closeMarkerPopup);
+
+    return leafletMarker;
+  }
+
+  static markerIcon(title) {
     return L.divIcon({
-      className: 'map-component__map__marker--default',
-      iconSize: [20, 20],
-      html,
+      className: 'icon icon--map-pin',
+      iconSize: [22, 30],
+      html: `<span class="govuk-visually-hidden">${title}</span>`,
     });
   }
 
-  static openMarkerPopup(e) {
-    e.target.openPopup();
+  static closeMarkerPopup(e) {
+    e.target.closePopup();
   }
 };
 
